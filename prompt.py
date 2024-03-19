@@ -2,7 +2,11 @@ from langchain.vectorstores.chroma import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
+from redundant_filter_retriever import RedundantFilterRetriever
 from dotenv import load_dotenv
+import langchain
+
+langchain.debug = True 
 
 load_dotenv()
 
@@ -15,7 +19,12 @@ db = Chroma(
   embedding_function=embeddings,
 )
 
-retriever = db.as_retriever()
+# retriever = db.as_retriever()
+# filtering logic with duplicate removal
+retriever = RedundantFilterRetriever(
+  embeddings=embeddings,
+  chroma=db
+)
 
 chain = RetrievalQA.from_chain_type(
   llm=chat,
